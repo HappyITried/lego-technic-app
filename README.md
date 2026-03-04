@@ -41,4 +41,4 @@ All binds are remappable in the built-in Keybind Editor.
 | GRANDMA | Very slow |
 
 ## YouTube
-[your channel link here]
+[@HappyITried](https://www.youtube.com/@HappyITried)

@@ -134,7 +134,7 @@ def default_config():
     return {
         "keybinds":     dict(DEFAULT_KEYBINDS),
         "controllers":  {},   # controller_name -> {axis_steer, axis_throttle, ...}
-        "fullscreen":   False,
+        "fullscreen":   True,
     }
 
 def load_config():
@@ -379,9 +379,8 @@ def hub_selection_screen():
     is_fullscreen = cfg_scan.get("fullscreen", False)
     BASE_W, BASE_H = 1100, 620
     if is_fullscreen:
-        info = pygame.display.Info()
-        W, H = info.current_w, info.current_h
-        screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
+        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        W, H = screen.get_size()
     else:
         W, H   = BASE_W, BASE_H
         screen = pygame.display.set_mode((W, H), pygame.NOFRAME)
@@ -415,9 +414,8 @@ def hub_selection_screen():
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
                 is_fullscreen = not is_fullscreen
                 if is_fullscreen:
-                    info = pygame.display.Info()
-                    W, H = info.current_w, info.current_h
-                    screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
+                    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                    W, H = screen.get_size()
                 else:
                     W, H = BASE_W, BASE_H
                     screen = pygame.display.set_mode((W, H), pygame.NOFRAME)
@@ -434,9 +432,8 @@ def hub_selection_screen():
                 elif fs_r.collidepoint(mx, my):
                     is_fullscreen = not is_fullscreen
                     if is_fullscreen:
-                        info = pygame.display.Info()
-                        W, H = info.current_w, info.current_h
-                        screen = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
+                        screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                        W, H = screen.get_size()
                     else:
                         W, H = BASE_W, BASE_H
                         screen = pygame.display.set_mode((W, H), pygame.NOFRAME)
@@ -529,8 +526,8 @@ def keybind_screen(cfg, connected_controllers):
 
     def _apply_display(fullscreen):
         if fullscreen:
-            info = pygame.display.Info()
-            return pygame.display.set_mode((info.current_w, info.current_h), pygame.FULLSCREEN), info.current_w, info.current_h
+            s = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            return s, s.get_width(), s.get_height()
         else:
             return pygame.display.set_mode((BASE_W, BASE_H), pygame.NOFRAME), BASE_W, BASE_H
 
@@ -727,8 +724,8 @@ def pygame_loop(hub_name, hub_address):
         if not pygame.display.get_init():
             pygame.display.init()
         if fullscreen:
-            info = pygame.display.Info()
-            return pygame.display.set_mode((info.current_w, info.current_h), pygame.FULLSCREEN), info.current_w, info.current_h
+            s = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            return s, s.get_width(), s.get_height()
         else:
             return pygame.display.set_mode((BASE_W, BASE_H), pygame.NOFRAME), BASE_W, BASE_H
 
@@ -829,6 +826,7 @@ def pygame_loop(hub_name, hub_address):
                 if k == pygame.K_F11:
                     is_fullscreen = not is_fullscreen
                     screen, W, H = apply_display_mode(is_fullscreen)
+                    cfg["fullscreen"] = is_fullscreen; save_config(cfg)
                 if k == keybinds["lights"]:
                     light_idx = (light_idx+1) % len(LIGHT_MODES)
                     state["lights"] = LIGHT_MODES[light_idx]
@@ -871,6 +869,7 @@ def pygame_loop(hub_name, hub_address):
                 elif fs_r.collidepoint(mx, my):
                     is_fullscreen = not is_fullscreen
                     screen, W, H = apply_display_mode(is_fullscreen)
+                    cfg["fullscreen"] = is_fullscreen; save_config(cfg)
                 elif my < 30 and not is_fullscreen:
                     hwnd = pygame.display.get_wm_info()["window"]
                     r = (ctypes.c_long * 4)()
